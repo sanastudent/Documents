@@ -1,70 +1,218 @@
 
-import React from 'react'
-import Image from 'next/image'
 
-const Images = () => {
-  return (
-    <div className="px-8 sm:px-16 lg:px-44 py-4">
-  {/* Heading */}
-  <div className="text-center mb-8">
-    <h1 className="font-josefin mt-10 mb-12 text-2xl sm:text-3xl md:text-4xl font-semibold text-[#151875]">
-      Featured Products
-    </h1>
-  </div>
+"use client";
 
-  {/* Image Grid */}
-  <div className="container mx-auto px-4 md:px-8" >
-  
-  <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-6">
-    {/* Image 1 */}
-    <div className="bg-white p-4 border border-gray-200 rounded-md shadow-md">
-      <Image
-        src="/Image1.png"
-        alt="Image 1" width={270} height={361}
-        className="w-full h-auto object-cover rounded-md"
-      />
-    </div>
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { client } from '@/sanity/lib/client';
+import { urlFor } from '@/sanity/lib/image';
+import { useShoppingCart } from 'use-shopping-cart';  // Import the use-shopping-cart hook
 
-    {/* Image 2 */}
-    <div className="bg-white p-4 border border-gray-200 rounded-md shadow-md">
-      <Image
-        src="/Image4.png"
-        alt="Image 2" width={270} height={361}
-        className="w-full h-auto object-cover rounded-md"
-      />
-    </div>
+const getProductData = async () => {
+  const res = await client.fetch(`
+    *[_type == 'images'] | order(_createdAt desc)[0..3] {
+      title,
+      image,
+      slug,
+      price,
+      description
+    }
+  `);
+  return res;
+};
 
-    {/* Image 3 */}
-    <div className="bg-white p-4 border border-gray-200 rounded-md shadow-md">
-      <Image
-        src="/Image3.png"
-        alt="Image 3" width={270} height={361}
-        className="w-full h-auto object-cover rounded-md"
-      />
-    </div>
-
-    {/* Image 4 */}
-    <div className="bg-white p-4 border border-gray-200 rounded-md shadow-md">
-      <Image
-        src="/Image2.png"
-        alt="Image 4" width={270} height={361}
-        className="w-full h-auto object-cover rounded-md"
-      />
-    </div>
-  </div>
-
-  <div className="flex justify-center items-center my-8">
-  <Image
-    src="/points.png"  // Replace with your image path
-    alt="points" width={91} height={4}
-    className="w-1/4 sm:w-1/6 md:w-1/8 h-auto object-contain"
-  />
-</div>
-
-  </div>
-</div>
-
-  )
+interface IImageData {
+  slug: { current: string };
+  title: string;
+  description: string;
+  price: number;
+  image: {
+    asset: {
+      _ref: string;
+    };
+  };
 }
 
-export default Images
+const Images = () => {
+  const { cartCount,addItem } = useShoppingCart();  // Access addItem from use-shopping-cart
+  const [data, setData] = useState<IImageData[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const productData = await getProductData();
+      setData(productData);  // Set the fetched data into state
+    };
+
+    fetchData();
+  }, []);
+  
+  return (
+    <>
+      <section id='featured'>
+        <div className="text-center mb-8">
+          <h1 className="font-josefin mt-10 mb-12 text-2xl sm:text-3xl md:text-4xl font-semibold text-[#151875]">
+            Featured Products    
+          </h1>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 px-4 sm:px-6 md:px-12 lg:px-24">
+          {data.map((item) => (
+            <div key={item.slug.current} className="bg-white p-4 border border-gray-200 rounded-md shadow-md">
+
+              <Link href={`/${item.slug.current}`}>
+                {/* Image with hover effect */}
+                <div className="overflow-hidden relative">
+                  {item.image ? (
+                    <Image
+                      src={urlFor(item.image).url()}
+                      alt={item.title}
+                      width={370}
+                      height={460}
+                      className="w-full h-auto object-cover rounded-md transition-transform duration-300 ease-in-out transform hover:scale-105"
+                    />
+                  ) : (
+                    <p className="text-center text-gray-500">No image available</p>
+                  )}
+                </div>
+              </Link>
+             
+              {/* Product Title */}
+              <h3 className="font-bold font-josefin text-[#FB2E86] text-center mt-2">{item.title}</h3>
+              
+              {/* Product Price */}
+              <h4 className="font-semibold text-[#151875] text-center mt-3">{`Rs.${item.price}`}</h4>
+              
+              {/* Add to Cart Button with functionality */}
+              <div className="flex justify-center mt-4">
+
+              <Link href={`/${item.slug.current}`}>
+
+                <button
+                  className="bg-[#FB2E86] text-white py-2 px-6 rounded-md hover:bg-[#F8709B] transition-all duration-300">
+                 
+                
+                View Details
+                </button>
+                    </Link>
+              </div>
+            </div>
+          ))}
+
+        </div>
+      </section>
+    </>
+  );
+};
+  
+export default Images;
+
+
+
+
+
+
+
+
+
+// "use client";
+
+// import { useState, useEffect } from 'react';
+// import Image from 'next/image';
+// import Link from 'next/link';
+// import { client } from '@/sanity/lib/client';
+// import { urlFor } from '@/sanity/lib/image';
+
+
+// const getProductData = async () => {
+
+//   const res = await client.fetch(`
+//     *[_type == 'images'] | order(_createdAt desc)[0..3] {
+//       title,
+//       image,
+//       slug,
+//       price,
+//       description
+//     }
+//   `);
+//   return res;
+// };
+
+// interface IImageData {
+//   slug: { current: string };
+//   title: string;
+//   description: string;
+//   price: number;
+//   image: {
+//     asset: {
+//       _ref: string;
+//     };
+//   };
+// }
+
+// const Images = () => {
+
+//   const [data, setData] = useState<IImageData[]>([]);
+
+//   useEffect(() => {
+//     const fetchData = async () => {
+//       const productData = await getProductData();
+//       setData(productData);  // Set the fetched data into state
+//     };
+
+//     fetchData();
+//   }, []);
+    
+//   return (
+//     <>
+//     <section id='featured'>
+//       <div className="text-center mb-8">
+//         <h1 className="font-josefin mt-10 mb-12 text-2xl sm:text-3xl md:text-4xl font-semibold text-[#151875]">
+//           Featured Products    
+//         </h1>
+//       </div>
+
+//       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 px-4 sm:px-6 md:px-12 lg:px-24">
+//         {data.map((item) => (
+//           <div key={item.slug.current} className="bg-white p-4 border border-gray-200 rounded-md shadow-md">
+//             <Link href={`/components/images/${item.slug.current}`}>
+//               {/* Image with hover effect */}
+//               <div className="overflow-hidden relative">
+//                 {item.image ? (
+//                   <Image
+//                     src={urlFor(item.image).url()}
+//                     alt={item.title}
+//                     width={370}
+//                     height={460}
+//                     className="w-full h-auto object-cover rounded-md transition-transform duration-300 ease-in-out transform hover:scale-105"
+//                   />
+//                 ) : (
+//                   <p className="text-center text-gray-500">No image available</p>
+//                 )}
+//               </div>
+//             </Link>
+             
+//             {/* Product Title */}
+//             <h3 className="font-bold font-josefin text-[#FB2E86] text-center mt-2">{item.title}</h3>
+            
+//             {/* Product Price */}
+//             <h4 className="font-semibold text-[#151875] text-center mt-3">{`Rs.${item.price}`}</h4>
+            
+//             {/* Add to Cart Button (Optional) */}
+//             <div className="flex justify-center mt-4">
+//               <button
+//                 className="bg-[#FB2E86] text-white py-2 px-6 rounded-md hover:bg-[#F8709B] transition-all duration-300"
+//               >
+//                 Add to Cart
+//               </button>
+//             </div>
+//           </div>
+//         ))}
+//       </div>
+//       </section>
+//     </>
+//   );
+// };
+  
+// export default Images;
+

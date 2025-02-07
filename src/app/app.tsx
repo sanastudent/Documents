@@ -1,13 +1,11 @@
+import CartPage from "./cart/page"
 
 
-import { CartProvider} from "./context/CartContext";
+
 
 function MyApp({Component,pageProps}) {
 return(
-    <CartProvider>
-        <Component{...pageProps}>
-
-        </CartProvider>
+<CartPage />
         
 )
 }

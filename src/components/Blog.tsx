@@ -1,28 +1,140 @@
 
+"use client"
+
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
+import { urlFor } from '@/sanity/lib/image';
+import { useEffect,useState } from 'react';
+import { client } from '@/sanity/lib/client';
 
-const Blog = () => {
-  return (
-<div className="flex flex-col items-center justify-center min-h-screen text-center px-4">
-  {/* Heading */}
-  <h1 className="font-josefin text-4xl font-bold mb-6 sm:mb-8 md:mb-10">Latest Blog</h1>
 
-  {/* Images */}
-  <div className="flex flex-wrap justify-center gap-6 sm:gap-8 md:gap-10">
-    <div className="w-32 sm:w-40 md:w-52 lg:w-64 xl:w-72">
-      <Image src="/b3.png" alt="Image 1" width={200} height={250} layout="responsive" />
-    </div>
-    <div className="w-32 sm:w-40 md:w-52 lg:w-64 xl:w-72">
-      <Image src="/b2.png" alt="Image 2" width={200} height={250} layout="responsive" />
-    </div>
-    <div className="w-32 sm:w-40 md:w-52 lg:w-64 xl:w-72">
-      <Image src="/b1.png" alt="Image 3" width={200} height={250} layout="responsive" />
-    </div>
-  </div>
-</div>
 
-  )
+
+const getProductData = async () => {
+  const res = await client.fetch(`
+   *[_type == "blog"]{
+  title,
+  image {
+    asset -> {
+      url
+    }
+  },
+
+}
+  `);
+  return res;
+};
+
+
+interface IImageData {
+  title: string;
+  slug: {
+    current: string; 
+  };
+  _id:string,
+  author:string,
+  publishDate:string,
+  description:string,
+  image: {
+    asset: {
+      _ref: string;
+    };
+  };
 }
 
-export default Blog
+const Blog = () => {
+
+  const [data, setData] = useState<IImageData[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const productData = await getProductData();
+      setData(productData);  // Set the fetched data into state
+    };
+
+    fetchData();
+  }, []);
+
+  return (
+    <>
+      
+      <h1 className="text-3xl sm:text-4xl font-semibold text-[#151875] mt-20 mb-6 text-center">
+        Latest Blog
+       </h1>
+        
+       <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-4 sm:px-6 md:px-12 lg:px-24">
+  {data.map((item) => (
+    <div
+      key={item._id}
+      className="bg-white p-4 border border-gray-200 rounded-md shadow-md flex flex-col items-center" // Centering the content using flex
+    >
+         
+        
+      <Link href={`/blog/${item.slug}`}>
+       
+       {/* Image with hover effect */}
+       <div className="overflow-hidden relative w-full flex justify-center">
+         {item.image ? (
+          <Image
+            src={urlFor(item.image).url()}
+            alt={item.title}
+            width={370}
+            height={460}
+            className="w-full h-auto object-cover rounded-md transition-transform duration-300 ease-in-out transform hover:scale-105"
+          />
+        ) : (
+          <p className="text-center text-gray-500">No image available</p>
+        )}
+      </div>
+      </Link> 
+      
+      {/* Product Title */}
+      <h3 className="font-bold font-josefin text-[#151875] text-center mt-2">{item.title}</h3>
+    </div>
+  ))}
+</div>
+
+ 
+
+    </>
+  );
+};
+
+export default Blog;
+
+
+
+
+
+        {/* Read More dynamic Link
+           <Link
+            href={`/blog`}  
+            className="block text-[#151875] px-4 py-1 text-center bg-accentDarkSecondary rounded text-dark font-semibold mt-4">
+           Read More
+           </Link> */}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

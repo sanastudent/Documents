@@ -1,25 +1,10 @@
 
-
-import { Input } from "@/components/ui/input";
 import { TableOfContents } from "lucide-react";
-import Products from "../../components/ui/ImageGallery";
-import ImageGallery from "../../components/ui/ImageGallery";
-import Footer from "@/components/ui/Footer";
 
 
-export default function Pages(){
-    return(
-        <>
-         <div className="w-full h-[286px] bg-[#F6F5FF] flex items-center pl-4 sm:pl-8 md:pl-16 ">
-       <div className="font-josefin text-left ml-16">
-       <h1 className="text-3xl sm:text-3xl md:text-3xl font-semibold">Shop Grid Default</h1>
-        <p className="mt-2 text-xsm sm:text-base md:text-lg">
-        Home . Pages <span className="text-[#FB2E86]">Shop Grid Default</span>
-      </p>
-      </div>
-      </div>
-
-
+export default function Fashion(){
+return (
+    <>
 {/* ecommerce accessories item area */}
 <div className="px-14 py-4 mt-12 mb-11">
   {/* Heading and Result Line */}
@@ -41,21 +26,12 @@ export default function Pages(){
         <p className="font-josefin text-[#8A8FB9]">Sort By:</p>
         <input className="bg-[#f55f5] rounded p-2 border-2 w-24 h-5 placeholder:text-sm" placeholder="Best Match" />
         <p className="font-josefin text-[#8A8FB9]">View</p>
-        <TableOfContents />
+        <TableOfContents/>
         <input className="bg-[#f55f5] rounded p-2 border-2 w-44 h-5" />
       </div>
     </div>
   </div>
 </div>
-
-<ImageGallery/>
-
-
-<Footer/>
-
-
-        
-        
-        </>
-    )
+</>
+)
 }
